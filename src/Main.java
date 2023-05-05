@@ -9,44 +9,27 @@ import java.text.NumberFormat;
 import java.text.ParseException;
 public class Main {
     public static List<Double> readFileOfDoubles(String filePath) throws IOException, FileFormatException{
-        String regexRU = "^\\d*\\,\\d*";
-        String regexDE ="^\\d{1,3}(\\.\\d{3})*\\,\\d*";
-        String regexUS = "^\\d*\\.\\d*";
-        String regexIN = "^\\d{1,3}(\\,\\d{3})*\\.\\d*";
         List<Double> inputNumbers = new ArrayList<>();
         try(BufferedReader reader = new BufferedReader(new FileReader(filePath))){
             String line;
             while ((line = reader.readLine()) != null){
                 try {
                     String[] subStr = line.split(" ");
+                    if (subStr.length < 2){
+                        throw new FileFormatException("Неподходящий формат записи строки в файле - строка содержала: " + line);
+                    }
                     String inputNum = subStr[0];
                     String inputLocale = subStr[1];
+                    String[] inputFormat = inputLocale.split("_");
+                    if (inputFormat.length < 2){
+                        throw new FileFormatException("Неподходящий формат записи локали в файле - строка содержала:\n" + line + "\nНеверная локаль: " + inputLocale);
+                    }
+                    String inputLang = inputFormat[0];
+                    String inputCountry = inputFormat[1];
                     double num = 0;
-                    if (Pattern.matches(regexRU,inputNum) && inputLocale.equals("RU")){
-                        NumberFormat nf = NumberFormat.getInstance(new Locale("ru", "RU"));
-                        num = nf.parse(inputNum).doubleValue();
-                        inputNumbers.add(num);
-                    }
-                    else if (Pattern.matches(regexDE,inputNum) && inputLocale.equals("DE")){
-                        NumberFormat nf = NumberFormat.getInstance(new Locale("de", "DE"));
-                        num = nf.parse(inputNum).doubleValue();
-                        inputNumbers.add(num);
-                    }
-                    else if (Pattern.matches(regexUS,inputNum) && inputLocale.equals("US")){
-                        NumberFormat nf = NumberFormat.getInstance(new Locale("en", "US"));
-                        num = nf.parse(inputNum).doubleValue();
-                        inputNumbers.add(num);
-                    }
-                    else if (Pattern.matches(regexIN,inputNum) && inputLocale.equals("IN")){
-                        NumberFormat nf = NumberFormat.getInstance(new Locale("en", "IN"));
-                        num = nf.parse(inputNum).doubleValue();
-                        inputNumbers.add(num);
-                    }
-                    else
-                    {
-                        throw new FileFormatException("Неподходящий формат записи числа в файле - строка содержала: " + line);
-                    }
-
+                    NumberFormat nf = NumberFormat.getInstance(new Locale(inputLang, inputCountry));
+                    num = nf.parse(inputNum).doubleValue();
+                    inputNumbers.add(num);
                 } catch (ParseException e) {
                     throw new FileFormatException("PE " + e.getMessage());
                 }
@@ -79,7 +62,7 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        String filePath = "C:\\StudFiles\\Учеба\\ПромышленноеПрограммирование\\Лабы\\8\\PromProgLab_8\\numbers.txt";
+        String filePath = "C:\\Users\\Pozer\\IdeaProjects\\PromProgLab_8\\numbers.txt";
         try {
             List<Double> numbers = readFileOfDoubles(filePath);
             System.out.println("Считанные числа: " + numbers);

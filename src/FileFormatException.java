@@ -1,4 +1,4 @@
-public class FileFormatException extends Throwable{
+public class FileFormatException extends Exception{
     String message;
     public FileFormatException(){
         message = "Неизвестная ошибка формата файла";
